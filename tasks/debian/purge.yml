@@ -5,7 +5,8 @@
     wg_wanted_ints: "{{ wireguard.topologies | flatten_ints(inventory_hostname, WG_CONFIG.int_prefix) }}"
 
 - name: Wireguard | Purge | Getting list of all enabled tunnel-services
-  ansible.builtin.shell: "systemctl list-units --state=loaded --full --no-pager | grep {{ WG_HC.wg_svc }}@ | cut -d ' ' -f3"
+  # parse out the unicode circle added by systemd and trim space at beginning and end of line for uniform table parsing
+  ansible.builtin.shell: "systemctl list-units --state=loaded --full --no-pager | grep {{ WG_HC.wg_svc }}@ | tr -d '●' | awk 'NF { $1=$1; print $1}'" 
   check_mode: false
   changed_when: false
   register: wg_svc_loaded
